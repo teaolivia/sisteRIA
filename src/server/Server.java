@@ -81,10 +81,19 @@ public class Server implements Runnable
 				streamFromClient = new BufferedReader();
 
 				InputStreamReader((fromClient.getInputStream()));
-				streamToClient
+				streamToClient = new PrintStream(fromClient.getInputStream());
+				String str = streamFromClient.readLine();
+				System.out.println(str);
+				streamToClient.println("Halo, "+str);
 			}
 		} catch (Exception e){
 			e.printStackTrace();
+		} finally {
+			try {
+				fromClient.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
