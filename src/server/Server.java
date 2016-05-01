@@ -10,23 +10,37 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.parser.JSONParser;
 
-public class Server 
+public class Server implements Runnable
 {
 	private String host;
     private int port;
     private Socket socket;
     private final String DEFAULT_HOST = "localhost";
+    private ServerSocket serverSocket;
+    PrintStream streamToClient;
+    BufferedReader streamFromClient;
+    Socket fromClient;
+    static int count = 0;
+    Thread thread;
 
 	public Server() 
 	{
 		this.host = host;
 		this.port = port;
 		this.socket = socket;
+
+		try{
+			serverSocket = new ServerSocket(1001);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public boolean isWerewolf()
 	{
 		boolean yes = false;
+		// for werewolf
 		return yes;
 	}
 
@@ -64,8 +78,29 @@ public class Server
 		out.flush();
 	}
 
-	public static void main(String[] args) throws Exception 
+	public void runServer()
 	{
+		try{
+			while(true){
+				fromClient = serverSocket.accept();
+				count++;
+				streamFromClient = new BufferedReader();
 
+				InputStreamReader((fromClient.getInputStream()));
+				streamToClient = new PrintStream(fromClient.getInputStream());
+				String str = streamFromClient.readLine();
+				System.out.println(str);
+				streamToClient.println("Halo, "+str);
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		} finally {
+			try {
+				fromClient.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
+
 }
