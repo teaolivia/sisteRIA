@@ -16,6 +16,12 @@ public class Server implements Runnable
     private int port;
     private Socket socket;
     private final String DEFAULT_HOST = "localhost";
+    private ServerSocket serverSocket;
+    PrintStream streamToClient;
+    BufferedReader streamFromClient;
+    Socket fromClient;
+    static int count = 0;
+    Thread thread;
 
 	public Server() 
 	{
