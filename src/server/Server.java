@@ -1,24 +1,32 @@
-import java.net.URL;
-import java.net.URLConnection;
+package sisterserver;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.ConnectException;
-import java.net.NoRouteToHostException;
-import java.net.UnknownHostException;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.parser.JSONParser;
 
 public class Server implements Runnable
 {
+<<<<<<< HEAD
 	private Paxos paxos;
 	private String host;
+=======
+    private String host;
+>>>>>>> ea38ce9783fbf5ff22ca116817d787e2b4816894
     private int port;
     private Socket socket;
     private final String DEFAULT_HOST = "localhost";
     private ServerSocket serverSocket;
-    PrintStream streamToClient;
+    private int numPlayer;
+    private boolean playing;
+    //PrintStream streamToClient;
     BufferedReader streamFromClient;
     Socket fromClient;
     static int count = 0;
@@ -26,9 +34,9 @@ public class Server implements Runnable
 
 	public Server() 
 	{
-		this.host = host;
-		this.port = port;
-		this.socket = socket;
+		this.host = "localhost";
+		this.port = 9999;
+		this.socket = null;
 
 		try{
 			serverSocket = new ServerSocket(1001);
@@ -37,7 +45,19 @@ public class Server implements Runnable
 		}
 		
 	}
-
+        
+        public Server(String _host, int _port){
+            try{
+                host = _host;
+                port = _port;
+                serverSocket = new ServerSocket(_port);
+                socket = serverSocket.accept();
+                playing = false;
+            }catch(IOException e){
+                
+            }
+            
+        }
 	public boolean isWerewolf()
 	{
 		boolean yes = false;
@@ -57,7 +77,7 @@ public class Server implements Runnable
 	public JSONObject receiveJSON() throws IOException
 	{
 		InputStream in = socket.getInputStream();
-		ObjectInputStream i = new ObjectInputStream();
+		ObjectInputStream i = new ObjectInputStream(in);
 		JSONObject line = null;
 		try {
 			line = (JSONObject) i.readObject();
@@ -66,13 +86,13 @@ public class Server implements Runnable
 		}
 
 		return line;
+            
 	}
 
 	public void sendJSON(JSONObject jsonObj) throws IOException
 	{
 		JSONObject jsonObject2 = new JSONObject();
-		jsonObject2.put("key", new Paper(250,333));
-
+		
 		OutputStream out = socket.getOutputStream();
 		ObjectOutputStream o = new ObjectOutputStream(out);
 		o.writeObject(jsonObject2);
@@ -85,13 +105,13 @@ public class Server implements Runnable
 			while(true){
 				fromClient = serverSocket.accept();
 				count++;
-				streamFromClient = new BufferedReader(fromClient.getInputStream());
+				//streamFromClient = new BufferedReader(fromClient.getInputStream());
 
-				InputStreamReader = new InputStreamReader((fromClient.getInputStream()));
-				PrintStream streamToClient = new PrintStream(fromClient.getInputStream());
+				InputStreamReader in = new InputStreamReader((fromClient.getInputStream()));
+				//PrintStream streamToClient = new PrintStream(fromClient.getInputStream());
 				String str = streamFromClient.readLine();
 				System.out.println(str);
-				streamToClient.println("Halo, "+str);
+				//streamToClient.println("Halo, "+str);
 			}
 		} catch (Exception e){
 			e.printStackTrace();
@@ -103,5 +123,25 @@ public class Server implements Runnable
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+        
+        public String receiveMessage() throws IOException{
+            String temp = null;
+            BufferedReader inFromClient =new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            temp = inFromClient.readLine();
+            return temp;
+        }
+        public void sendMessage(String out) throws IOException{
+            DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
+            String response = out + '\n';
+            outToClient.writeBytes(response); 
+        }
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+       	
+>>>>>>> ea38ce9783fbf5ff22ca116817d787e2b4816894
 
 }
