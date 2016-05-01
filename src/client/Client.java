@@ -6,10 +6,17 @@
 package sisterclient;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketException;
+
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import org.json.JSONObject;
@@ -29,6 +36,7 @@ public class Client {
     private String ipAddress; //ipsendiri
     private Random random;
     private int previouskpu;
+    private Socket clientSocket;
     
     public Client(int _playerid, int _port){
         playerID = _playerid;
@@ -43,81 +51,6 @@ public class Client {
     }
     public void setPort(int _port){
         port = _port;
-    }
-    public void prepareProposal() throws SocketException, UnknownHostException, IOException{
-        byte[] sendData = new byte[1024];
-        byte[] receiveData = new byte[1024];  
-        if(isProposer){
-            DatagramSocket proposerSocket = new DatagramSocket();
-            InetAddress IPAddress = InetAddress.getByName("localhost");
-            String message  = "{\"method\":\"prepare_proposal\",\"proposal_id\": ["+proposalNum+","+playerID+"]}";
-            sendData = message.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-            double rand = random.nextDouble();
-            if (rand < 0.85) {
-                proposerSocket.send(sendPacket);
-            }
-            //proposerSocket.setSoTimeout(timeout);
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            proposerSocket.receive(receivePacket);
-            String receivedResponse = new String(receivePacket.getData());
-            System.out.println("FROM SERVER:" + receivedResponse);
-            proposerSocket.close();
-            boolean waiting = true;
-            /*while(waiting){
-                try{
-                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                    proposerSocket.receive(receivePacket);
-                    receivedResponse = new String(receivePacket.getData());
-                    System.out.println("FROM SERVER:" + receivedResponse);
-                    waiting = false;
-                    proposerSocket.close()
-                }catch(SocketTimeoutException e){
-                    receivedResponse = "{\"status\": \"error\",\"description\": \"No Response\"}";
-                    System.out.println("Timeout " + e +receivedResponse);
-                    proposerSocket.close();
-                }
-            }*/
-        }else{
-            String message = null;
-            String respond = null;
-            DatagramSocket serverSocket = new DatagramSocket(port);
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            serverSocket.setSoTimeout(timeout+10000);
-            JSONObject tes = null;
-            InetAddress IPAddress=null;
-            boolean getmessage = false;
-            try{
-                serverSocket.receive(receivePacket);
-                message = new String( receivePacket.getData());
-                IPAddress = receivePacket.getAddress();
-                System.out.println("RECEIVED: " + message);
-                tes = new JSONObject(message);
-                getmessage= true;
-                if (getmessage){
-                    if(tes.get("method").toString().compareTo("prepare_proposal")==0){
-                        System.out.println("aawawa");
-                        Scanner input = new Scanner(System.in);
-                        int in = Integer.parseInt(input.next()) ;
-                            switch(in){
-                                case 1 : respond = "{\"status\": \"ok\",\"description\": \"accepted\",\"previous_accepted\":"+previouskpu+"}"; break;
-                                case 2 : respond = "{\"status\": \"fail\",\"description\": \"rejected\"}"; break;
-                            }
-                        }
-                        //int port = receivePacket.getPort();
-                        System.out.println("aawawa");
-                        sendData = respond.getBytes();
-                        System.out.println(respond);
-                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                        serverSocket.send(sendPacket);
-                        System.out.println(IPAddress.toString());
-                        System.out.println(port);
-                }
-            }catch(SocketTimeoutException e){
-                respond = "{\"status\": \"fail\",\"description\": \"rejected\"}";
-                System.out.println("Timeout " + e +respond);
-            }
-        }
     }
     void sendMessageToClient(String _addr, int port, String message) throws SocketException, UnknownHostException, IOException{
         DatagramSocket senderSocket = new DatagramSocket();
@@ -134,6 +67,7 @@ public class Client {
     void receiveMessageFromClient(String _addr, int port) throws SocketException, IOException{
         byte[] receiveData = new byte[1024];  
         DatagramSocket receiverSocket = new DatagramSocket(port);
+        receiverSocket.setReuseAddress(true);
         InetAddress IPAddress = InetAddress.getByName(_addr);
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         receiverSocket.receive(receivePacket);
@@ -141,5 +75,64 @@ public class Client {
         System.out.println("FROM SERVER:" + response);
         receiverSocket.close(); 
     }
-    
+    void connectToServer(String _ipAddr, int _port ) throws IOException{
+        clientSocket = new Socket(_ipAddr, _port);
+    }
+    void sendMessageToServer(Object _objIn) throws IOException{
+        OutputStream out = clientSocket.getOutputStream();
+        ObjectOutputStream oOut = new ObjectOutputStream(out);
+        oOut.writeObject(_objIn);
+    }
+    void receiveMessageFromServer() throws IOException, ClassNotFoundException{
+        Object oTemp = null;
+        InputStream in = clientSocket.getInputStream();
+        ObjectInputStream oIn = new ObjectInputStream(in);
+        oTemp = (Object) oIn.readObject();
+        if(oTemp instanceof JSONObject){
+            System.out.println(((JSONObject)oTemp).toString());
+        }else{
+            System.out.println("error/fail");
+        }
+    }
+
+    public int getPlayerID() {
+        return playerID;
+    }
+
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
+
+    public int getProposalNum() {
+        return proposalNum;
+    }
+
+    public void setProposalNum(int proposalNum) {
+        this.proposalNum = proposalNum;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+
+    public int getPreviouskpu() {
+        return previouskpu;
+    }
+
+    public void setPreviouskpu(int previouskpu) {
+        this.previouskpu = previouskpu;
+    }
+
+    public Socket getClientSocket() {
+        return clientSocket;
+    }
+
+    public void setClientSocket(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
 }
