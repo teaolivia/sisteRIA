@@ -21,4 +21,5 @@ public class Paxos
 		DatagramPacket sendPacket = new DatagramPacket();
 		clientSocket.send(sendPacket);
 	}
+
 }

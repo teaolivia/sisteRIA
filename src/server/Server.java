@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.parser.JSONParser;
 
-public class Server 
+public class Server implements Runnable
 {
 	private String host;
     private int port;
@@ -22,11 +22,19 @@ public class Server
 		this.host = host;
 		this.port = port;
 		this.socket = socket;
+
+		try{
+			serverSocket = new ServerSocket(1001);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public boolean isWerewolf()
 	{
 		boolean yes = false;
+		// for werewolf
 		return yes;
 	}
 
@@ -64,8 +72,20 @@ public class Server
 		out.flush();
 	}
 
-	public static void main(String[] args) throws Exception 
+	public void runServer()
 	{
+		try{
+			while(true){
+				fromClient = serverSocket.accept();
+				count++;
+				streamFromClient = new BufferedReader();
 
+				InputStreamReader((fromClient.getInputStream()));
+				streamToClient
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
+
 }
