@@ -26,7 +26,7 @@ public class Client {
     private int proposalNum;
     private final int timeout=15000; //in milliseconds 
     private boolean isProposer;
-    private String ipAddress;
+    private String ipAddress; //ipsendiri
     private Random random;
     private int previouskpu;
     
@@ -41,7 +41,6 @@ public class Client {
     public void setIsProposer(boolean _bool){
         isProposer = _bool;
     }
-    
     public void setPort(int _port){
         port = _port;
     }
@@ -58,13 +57,11 @@ public class Client {
             if (rand < 0.85) {
                 proposerSocket.send(sendPacket);
             }
-            proposerSocket.setSoTimeout(timeout);
-            String receivedResponse = null;
+            //proposerSocket.setSoTimeout(timeout);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             proposerSocket.receive(receivePacket);
-            receivedResponse = new String(receivePacket.getData());
+            String receivedResponse = new String(receivePacket.getData());
             System.out.println("FROM SERVER:" + receivedResponse);
-
             proposerSocket.close();
             boolean waiting = true;
             /*while(waiting){
@@ -82,23 +79,21 @@ public class Client {
                 }
             }*/
         }else{
-            String request = null;
+            String message = null;
             String respond = null;
             DatagramSocket serverSocket = new DatagramSocket(port);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             serverSocket.setSoTimeout(timeout+10000);
             JSONObject tes = null;
+            InetAddress IPAddress=null;
             boolean getmessage = false;
             try{
                 serverSocket.receive(receivePacket);
-                request = new String( receivePacket.getData());
-                System.out.println("RECEIVED: " + request);
-                tes = new JSONObject(request);
+                message = new String( receivePacket.getData());
+                IPAddress = receivePacket.getAddress();
+                System.out.println("RECEIVED: " + message);
+                tes = new JSONObject(message);
                 getmessage= true;
-            }catch(SocketTimeoutException e){
-                respond = "{\"status\": \"fail\",\"description\": \"rejected\"}";
-                System.out.println("Timeout " + e +respond);
-            }finally{
                 if (getmessage){
                     if(tes.get("method").toString().compareTo("prepare_proposal")==0){
                         System.out.println("aawawa");
@@ -109,7 +104,6 @@ public class Client {
                                 case 2 : respond = "{\"status\": \"fail\",\"description\": \"rejected\"}"; break;
                             }
                         }
-                        InetAddress IPAddress = receivePacket.getAddress();
                         //int port = receivePacket.getPort();
                         System.out.println("aawawa");
                         sendData = respond.getBytes();
@@ -119,7 +113,33 @@ public class Client {
                         System.out.println(IPAddress.toString());
                         System.out.println(port);
                 }
+            }catch(SocketTimeoutException e){
+                respond = "{\"status\": \"fail\",\"description\": \"rejected\"}";
+                System.out.println("Timeout " + e +respond);
             }
         }
     }
+    void sendMessageToClient(String _addr, int port, String message) throws SocketException, UnknownHostException, IOException{
+        DatagramSocket senderSocket = new DatagramSocket();
+        InetAddress IPAddress = InetAddress.getByName(_addr);
+        byte[] sendData = new byte[1024];
+        sendData = message.getBytes();
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+        double rand = random.nextDouble();
+        if (rand < 0.85) {
+            senderSocket.send(sendPacket);
+        }
+        senderSocket.close();
+    }
+    void receiveMessageFromClient(String _addr, int port) throws SocketException, IOException{
+        byte[] receiveData = new byte[1024];  
+        DatagramSocket receiverSocket = new DatagramSocket(port);
+        InetAddress IPAddress = InetAddress.getByName(_addr);
+        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        receiverSocket.receive(receivePacket);
+        String response = new String(receivePacket.getData());
+        System.out.println("FROM SERVER:" + response);
+        receiverSocket.close(); 
+    }
+    
 }
