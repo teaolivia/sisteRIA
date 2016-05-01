@@ -12,6 +12,7 @@ import org.json.parser.JSONParser;
 
 public class Server implements Runnable
 {
+	private Paxos paxos;
 	private String host;
     private int port;
     private Socket socket;
@@ -102,7 +103,5 @@ public class Server implements Runnable
 			}
 		}
 	}
-
-	
 
 }
