@@ -84,10 +84,10 @@ public class Server implements Runnable
 			while(true){
 				fromClient = serverSocket.accept();
 				count++;
-				streamFromClient = new BufferedReader();
+				streamFromClient = new BufferedReader(fromClient.getInputStream());
 
-				InputStreamReader((fromClient.getInputStream()));
-				streamToClient = new PrintStream(fromClient.getInputStream());
+				InputStreamReader = new InputStreamReader((fromClient.getInputStream()));
+				PrintStream streamToClient = new PrintStream(fromClient.getInputStream());
 				String str = streamFromClient.readLine();
 				System.out.println(str);
 				streamToClient.println("Halo, "+str);
@@ -102,5 +102,7 @@ public class Server implements Runnable
 			}
 		}
 	}
+
+	
 
 }
