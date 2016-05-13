@@ -14,12 +14,8 @@ import org.json.JSONObject;
 
 public class Server implements Runnable
 {
-<<<<<<< HEAD
 	private Paxos paxos;
-	private String host;
-=======
     private String host;
->>>>>>> ea38ce9783fbf5ff22ca116817d787e2b4816894
     private int port;
     private Socket socket;
     private final String DEFAULT_HOST = "localhost";
@@ -123,8 +119,7 @@ public class Server implements Runnable
 			}
 		}
 	}
-<<<<<<< HEAD
-=======
+
         
         public String receiveMessage() throws IOException{
             String temp = null;
@@ -142,6 +137,6 @@ public class Server implements Runnable
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
        	
->>>>>>> ea38ce9783fbf5ff22ca116817d787e2b4816894
+
 
 }
