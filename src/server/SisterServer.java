@@ -10,6 +10,11 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import org.json.JSONObject;
+import org.json.JSONException;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -28,7 +33,7 @@ public class SisterServer {
             while(true)
             {
                Socket connectionSocket = welcomeSocket.accept();
-               BufferedReader inFromClient =new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+               BufferedReasder inFromClient =new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
                DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
                clientSentence = inFromClient.readLine();
                System.out.println("Received: " + clientSentence);
@@ -43,11 +48,14 @@ public class SisterServer {
             System.out.println(j.get("method"));*/
             private int sequenceID;
             private int processID;
-            int 
+
             Client c = new Client(1,9999);
             c.receiveMessageFromClient("localhost", 8888);
 
             // creating consensus
+            public void consensus(){
+              
+            }
 
     }
     

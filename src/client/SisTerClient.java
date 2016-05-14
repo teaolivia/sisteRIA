@@ -41,6 +41,12 @@ public class SisTerClient {
         
         c.sendMessageToClient("localhost", 8888,"{\"method\":\"prepare_proposal\",\"proposal_id\": ["+c.getProposalNum()+","+c.getPlayerID()+"]}");
         
-    }
+        public void vote(){
+            
+        }
+
+        public void send_request(R){
+
+        }
     
 }

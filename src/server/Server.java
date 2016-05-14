@@ -15,129 +15,46 @@ import org.json.JSONObject;
 public class Server implements Runnable
 {
 
-	private Paxos paxos;
-    private String host;
-    private int port;
-    private Socket socket;
-    private final String DEFAULT_HOST = "localhost";
-    private ServerSocket serverSocket;
-    private int numPlayer;
-    private boolean playing;
-    //PrintStream streamToClient;
-    BufferedReader streamFromClient;
-    Socket fromClient;
-    static int count = 0;
-    Thread thread;
+	private int totalProcesses;
+	private int numProposers;
+	private int numAcceptors;
+	private int numLearners;
+	private int decision=-1;
 
-	public Server() 
-	{
-		this.host = "localhost";
-		this.port = 9999;
-		this.socket = null;
-
-		try{
-			serverSocket = new ServerSocket(1001);
-		} catch (Exception e) {
-			e.printStackTrace();
+	public Network(int numProposers, int numAcceptors, int numLearners){
+		totalProcesses = numProposers + numAcceptors + numLearners;
+		queues = new LinkedList[totalProcesses];
+		for (int i=0; i<totalProcesses; i++) {
+			queues[i] = new LinkedList<String>();
 		}
-		
-	}
-        
-        public Server(String _host, int _port){
-            try{
-                host = _host;
-                port = _port;
-                serverSocket = new ServerSocket(_port);
-                socket = serverSocket.accept();
-                playing = false;
-            }catch(IOException e){
-                
-            }
-            
-        }
-	public boolean isWerewolf()
-	{
-		boolean yes = false;
-		// for werewolf
-		return yes;
+		this.numProposers = numProposers;
+		this.numAcceptors = numAcceptors;
+		this.numLearners = numLearners;
 	}
 
-	public void connect(String host, int port) throws IOException
-	{
-		this.host = host;
-		this.port = port;
-		socket = new Socket(host, port);
-		System.out.println("Game sudah dimulai... V^__^V");
-
+	public int getnumAcceptors(){
+		return numAcceptors;
 	}
 
-	public JSONObject receiveJSON() throws IOException
-	{
-		InputStream in = socket.getInputStream();
-		ObjectInputStream i = new ObjectInputStream(in);
-		JSONObject line = null;
-		try {
-			line = (JSONObject) i.readObject();
-		} catch (ClassNotFoundException e){
-			e.printStackTrace();
-		}
-
-		return line;
-            
+	public int getnumProposers(){
+		return numProposers;
 	}
 
-	public void sendJSON(JSONObject jsonObj) throws IOException
-	{
-		JSONObject jsonObject2 = new JSONObject();
-		
-		OutputStream out = socket.getOutputStream();
-		ObjectOutputStream o = new ObjectOutputStream(out);
-		o.writeObject(jsonObject2);
-		out.flush();
+	public int getnumLearners(){
+		return numLearners
 	}
-
-	public void runServer()
-	{
-		try{
-			while(true){
-				fromClient = serverSocket.accept();
-				count++;
-				//streamFromClient = new BufferedReader(fromClient.getInputStream());
-
-				InputStreamReader in = new InputStreamReader((fromClient.getInputStream()));
-				//PrintStream streamToClient = new PrintStream(fromClient.getInputStream());
-				String str = streamFromClient.readLine();
-				System.out.println(str);
-				//streamToClient.println("Halo, "+str);
-			}
-		} catch (Exception e){
-			e.printStackTrace();
-		} finally {
-			try {
-				fromClient.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-        
-        public String receiveMessage() throws IOException{
-            String temp = null;
-            BufferedReader inFromClient =new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            temp = inFromClient.readLine();
-            return temp;
-        }
-        public void sendMessage(String out) throws IOException{
-            DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
-            String response = out + '\n';
-            outToClient.writeBytes(response); 
-        }
-    @Override
-    public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
        	
+    // untuk channel communication dari proses processID
+    public Channel getChannel(int processID){
+    	if (processID <0 || processID >= totalProcesses) {
+    		throw new Error ("Invalid process ID");
+    	}
+
+    	Channel c = new Channel();
+    	c.index = processID;
+    	c.network = this;
+    	return c;
+    }
 
 
 }

@@ -7,11 +7,19 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.util.HashMap;
+
+import java.lang.Thread;
+
 public class Paxos 
 {
+	Server server;
 	DatagramSocket clientSocket;
 	private int n; // number of request
 
+	public Paxos(){
+		this.
+	}
 	public void sendRequest(String sentence, String host, int port)
 	{
 		clientSocket = new DatagramSocket();
@@ -21,6 +29,30 @@ public class Paxos
 		sendData = sentence.getBytes();
 		DatagramPacket sendPacket = new DatagramPacket();
 		clientSocket.send(sendPacket);
+	}
+
+	public void runPaxos() {
+		int n_proses = server.getnumProposers() + server.getnumAcceptors() + server.getnumLearners();
+		for (int i=0; i<n_proses; i++){
+			Thread t = new Thread(this, ""+i);
+			t.start();
+		}
+	}	
+
+	public int nextProposalNumber(int PID, int cur_Pnum){
+		int i = 0;
+		while (true) {
+			if (i<=cur_Pnum){
+				i++;
+			} else {
+				if (i%server.getnumProposers()==PID)
+					return i;
+				else
+					i++;
+			}
+			if (i==MAX_PROPNUM)
+				return -1;
+		}
 	}
 
 	public boolean IsUnique(){
