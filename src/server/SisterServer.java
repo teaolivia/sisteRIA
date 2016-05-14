@@ -41,8 +41,14 @@ public class SisterServer {
             System.out.println(request);
             JSONObject j = new JSONObject(request);
             System.out.println(j.get("method"));*/
+            private int sequenceID;
+            private int processID;
+            int 
             Client c = new Client(1,9999);
             c.receiveMessageFromClient("localhost", 8888);
+
+            // creating consensus
+
     }
     
 }
