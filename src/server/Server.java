@@ -12,6 +12,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+import java.util.Stack;
+
 public class Server implements Runnable
 {
 
@@ -21,7 +24,10 @@ public class Server implements Runnable
 	private int numLearners;
 	private int decision=-1;
 
-	public Network(int numProposers, int numAcceptors, int numLearners){
+	LinkedList<String>[] queues;
+
+	@SuppressWarnings("unchecked")
+	public Server(int numProposers, int numAcceptors, int numLearners){
 		totalProcesses = numProposers + numAcceptors + numLearners;
 		queues = new LinkedList[totalProcesses];
 		for (int i=0; i<totalProcesses; i++) {
@@ -49,7 +55,6 @@ public class Server implements Runnable
     	if (processID <0 || processID >= totalProcesses) {
     		throw new Error ("Invalid process ID");
     	}
-
     	Channel c = new Channel();
     	c.index = processID;
     	c.network = this;
