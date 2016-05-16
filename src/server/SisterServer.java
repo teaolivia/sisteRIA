@@ -51,12 +51,6 @@ public class SisterServer {
 
             Client c = new Client(1,9999);
             c.receiveMessageFromClient("localhost", 8888);
-
-            // creating consensus
-            public void consensus(){
-              
-            }
-
     }
     
 }
