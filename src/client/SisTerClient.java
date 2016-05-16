@@ -31,6 +31,12 @@ public class SisTerClient {
         c.client2server();
         //c.peerAsClient();
         
-    }
+        public void vote(){
+            
+        }
+
+        public void send_request(R){
+
+        }
     
 }

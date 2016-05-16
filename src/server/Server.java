@@ -14,8 +14,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+import java.util.Stack;
+
 public class Server implements Runnable
 {
+<<<<<<< HEAD
 //private Paxos paxos;
     private String host;
     private int port;
@@ -31,13 +35,16 @@ public class Server implements Runnable
     static int count = 0;
     Thread thread;
     
+=======
+>>>>>>> 50cd7dce6ca5ad2a4fe6fb38066efe574e692b88
 
-	public Server() 
-	{
-		this.host = "localhost";
-		this.port = 9999;
-		this.socket = null;
+	private int totalProcesses;
+	private int numProposers;
+	private int numAcceptors;
+	private int numLearners;
+	private int decision=-1;
 
+<<<<<<< HEAD
 		try{
 			serverSocket = new ServerSocket(1001);
 		} catch (Exception e) {
@@ -69,57 +76,31 @@ public class Server implements Runnable
 		System.out.println("Game sudah dimulai... V^__^V");
 
 	}
+=======
+	LinkedList<String>[] queues;
+>>>>>>> 50cd7dce6ca5ad2a4fe6fb38066efe574e692b88
 
-	public JSONObject receiveJSON() throws IOException
-	{
-		InputStream in = socket.getInputStream();
-		ObjectInputStream i = new ObjectInputStream(in);
-		JSONObject line = null;
-		try {
-			line = (JSONObject) i.readObject();
-		} catch (ClassNotFoundException e){
-			e.printStackTrace();
+	@SuppressWarnings("unchecked")
+	public Server(int numProposers, int numAcceptors, int numLearners){
+		totalProcesses = numProposers + numAcceptors + numLearners;
+		queues = new LinkedList[totalProcesses];
+		for (int i=0; i<totalProcesses; i++) {
+			queues[i] = new LinkedList<String>();
 		}
-
-		return line;
-            
+		this.numProposers = numProposers;
+		this.numAcceptors = numAcceptors;
+		this.numLearners = numLearners;
 	}
 
-	public void sendJSON(JSONObject jsonObj) throws IOException
-	{
-		JSONObject jsonObject2 = new JSONObject();
-		
-		OutputStream out = socket.getOutputStream();
-		ObjectOutputStream o = new ObjectOutputStream(out);
-		o.writeObject(jsonObject2);
-		out.flush();
+	public int getnumAcceptors(){
+		return numAcceptors;
 	}
 
-	public void runServer()
-	{
-		try{
-			while(true){
-				fromClient = serverSocket.accept();
-				count++;
-				//streamFromClient = new BufferedReader(fromClient.getInputStream());
-
-				InputStreamReader in = new InputStreamReader((fromClient.getInputStream()));
-				//PrintStream streamToClient = new PrintStream(fromClient.getInputStream());
-				String str = streamFromClient.readLine();
-				System.out.println(str);
-				//streamToClient.println("Halo, "+str);
-			}
-		} catch (Exception e){
-			e.printStackTrace();
-		} finally {
-			try {
-				fromClient.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	public int getnumProposers(){
+		return numProposers;
 	}
 
+<<<<<<< HEAD
        
         
         public void server2client() throws IOException{
@@ -170,7 +151,22 @@ public class Server implements Runnable
     public void run() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+=======
+	public int getnumLearners(){
+		return numLearners
+	}
+>>>>>>> 50cd7dce6ca5ad2a4fe6fb38066efe574e692b88
        	
+    // untuk channel communication dari proses processID
+    public Channel getChannel(int processID){
+    	if (processID <0 || processID >= totalProcesses) {
+    		throw new Error ("Invalid process ID");
+    	}
+    	Channel c = new Channel();
+    	c.index = processID;
+    	c.network = this;
+    	return c;
+    }
 
 
 }
