@@ -10,11 +10,13 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Server implements Runnable
 {
-	private Paxos paxos;
+//private Paxos paxos;
     private String host;
     private int port;
     private Socket socket;
@@ -22,11 +24,13 @@ public class Server implements Runnable
     private ServerSocket serverSocket;
     private int numPlayer;
     private boolean playing;
-    //PrintStream streamToClient;
+    private boolean temps2c;
+//PrintStream streamToClient;
     BufferedReader streamFromClient;
     Socket fromClient;
     static int count = 0;
     Thread thread;
+    
 
 	public Server() 
 	{
@@ -43,15 +47,11 @@ public class Server implements Runnable
 	}
         
         public Server(String _host, int _port){
-            try{
-                host = _host;
-                port = _port;
-                serverSocket = new ServerSocket(_port);
-                socket = serverSocket.accept();
-                playing = false;
-            }catch(IOException e){
-                
-            }
+            host = _host;
+            port = _port;
+            playing = false;
+            numPlayer= 0;
+            temps2c = true;
             
         }
 	public boolean isWerewolf()
@@ -120,17 +120,51 @@ public class Server implements Runnable
 		}
 	}
 
+       
         
-        public String receiveMessage() throws IOException{
-            String temp = null;
-            BufferedReader inFromClient =new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            temp = inFromClient.readLine();
-            return temp;
+        public void server2client() throws IOException{
+            String response,request,method;
+            ServerSocket serverSocket = new ServerSocket(port);
+            
+            while(temps2c)
+            {
+               Socket connectionSocket = serverSocket.accept();
+               BufferedReader inFromClient =new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+               DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+               request = inFromClient.readLine();
+               System.out.println("Received: " + request);
+               
+               if (isJSON(request)){
+                   JSONObject j = new JSONObject(request);
+                   method = j.get("method").toString();
+                    switch(method){
+                        case "join" : response = "{\"status\": \"ok\",\"player_id\":"+numPlayer+"}";numPlayer++;break;
+                        case "leave"  : response = "{\"status\": \"ok\"}";break;
+                        case "ready" :  response = "{\"status\": \"ok\",\"description\":\"Waiting other player to start\"}";break;
+                        case "client_address": response ="not";break;
+                        case "vote_result_civilian": response = "{\"status\": \"ok\",\"description\":\"civ Killed\"}";break;
+                        default: response = ""; break;
+                    }
+                    response = response + '\n';
+                    outToClient.writeBytes(response); 
+               }else{
+                   temps2c=false;
+               }
+               
+
+            }
         }
-        public void sendMessage(String out) throws IOException{
-            DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
-            String response = out + '\n';
-            outToClient.writeBytes(response); 
+        private boolean isJSON(String test){
+            try{
+                new JSONObject(test);
+            }catch(JSONException ex){
+                try{
+                    new  JSONArray(test);
+                }catch(JSONException ex2){
+                    return false;
+                }
+            }
+            return true;
         }
     @Override
     public void run() {
