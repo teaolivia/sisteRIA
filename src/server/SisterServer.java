@@ -26,10 +26,20 @@ public class SisterServer {
      * @param args the command line arguments
      */
         public static void main(String[] args) throws Exception {
-           /* String clientSentence;
-            String capitalizedSentence;
-            ServerSocket welcomeSocket = new ServerSocket(6789);
+            System.out.println("Masukan address");
+            BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));
+            String address = inFromUser.readLine().toString();
             
+            System.out.println("Masukan Port");
+            inFromUser = new BufferedReader( new InputStreamReader(System.in));
+            int port = Integer.parseInt(inFromUser.readLine().toString());
+            Server s = new Server(address,port);
+            s.server2client();
+            //Client c = new Client(0,9999);
+            //c.peerAsServer();
+            
+<<<<<<< HEAD
+=======
             while(true)
             {
                Socket connectionSocket = welcomeSocket.accept();
@@ -51,6 +61,16 @@ public class SisterServer {
 
             Client c = new Client(1,9999);
             c.receiveMessageFromClient("localhost", 8888);
+<<<<<<< HEAD
+=======
+
+            // creating consensus
+            public void consensus(){
+              
+            }
+
+>>>>>>> 50cd7dce6ca5ad2a4fe6fb38066efe574e692b88
+>>>>>>> 03e8375e6aaa270bdfb4b367153ed7592937748f
     }
     
 }
